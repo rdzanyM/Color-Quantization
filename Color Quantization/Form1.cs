@@ -76,13 +76,16 @@ namespace Color_Quantization
             List<byte> list = new List<byte>();
             List<byte> threshholds = new List<byte>();
             byte[,,] rgb = new byte[3, direct.Width, direct.Height];
-            for (int i = 0; i < direct.Width; i++) for (int j = 0; j < direct.Height; j++)
+            Parallel.For(0, direct.Width, (i) =>
             {
-                Color color = direct.GetPixel(i, j);
-                rgb[0, i, j] = color.R;
-                rgb[1, i, j] = color.G;
-                rgb[2, i, j] = color.B;
-            }
+                for (int j = 0; j < direct.Height; j++)
+                {
+                    Color color = direct.GetPixel(i, j);
+                    rgb[0, i, j] = color.R;
+                    rgb[1, i, j] = color.G;
+                    rgb[2, i, j] = color.B;
+                }
+            });
             for (int c = 0; c < 3; c++)
             {
                 for (int i = 0; i < direct.Width; i++) for (int j = 0; j < direct.Height; j++)
@@ -94,15 +97,18 @@ namespace Color_Quantization
                 }
                 threshholds.Add(255);
                 d = (levels[c] - 1);
-                for (int i = 0; i < direct.Width; i++) for (int j = 0; j < direct.Height; j++)
-                    for (int k = 0; k < threshholds.Count; k++)
-                    {
-                        if (rgb[c, i, j] <= threshholds[k])
+                Parallel.For(0, direct.Width, (i) =>
+                {
+                    for (int j = 0; j < direct.Height; j++)
+                        for (int k = 0; k < threshholds.Count; k++)
                         {
-                            rgb[c, i, j] = (byte)(k * 255 / d);
-                            break;
+                            if (rgb[c, i, j] <= threshholds[k])
+                            {
+                                rgb[c, i, j] = (byte)(k * 255 / d);
+                                break;
+                            }
                         }
-                    }
+                });
                 list.Clear();
                 threshholds.Clear();
             }
