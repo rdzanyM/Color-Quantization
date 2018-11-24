@@ -131,8 +131,9 @@
             this.comboBox.FormattingEnabled = true;
             this.comboBox.Items.AddRange(new object[] {
             "Original Image",
-            "Average Dithering"});
-            this.comboBox.Location = new System.Drawing.Point(184, 29);
+            "Average Dithering",
+            "Random Dithering"});
+            this.comboBox.Location = new System.Drawing.Point(184, 30);
             this.comboBox.Margin = new System.Windows.Forms.Padding(10);
             this.comboBox.Name = "comboBox";
             this.comboBox.Size = new System.Drawing.Size(200, 27);
@@ -309,20 +310,20 @@
             // flowersToolStripMenuItem
             // 
             this.flowersToolStripMenuItem.Name = "flowersToolStripMenuItem";
-            this.flowersToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.flowersToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
             this.flowersToolStripMenuItem.Text = "Flowers";
             this.flowersToolStripMenuItem.Click += new System.EventHandler(this.FlowersToolStripMenuItem_Click);
             // 
             // iceCreamToolStripMenuItem
             // 
             this.iceCreamToolStripMenuItem.Name = "iceCreamToolStripMenuItem";
-            this.iceCreamToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.iceCreamToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
             this.iceCreamToolStripMenuItem.Text = "Ice Cream";
             // 
             // jellyBeansToolStripMenuItem
             // 
             this.jellyBeansToolStripMenuItem.Name = "jellyBeansToolStripMenuItem";
-            this.jellyBeansToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.jellyBeansToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
             this.jellyBeansToolStripMenuItem.Text = "Jelly Beans";
             // 
             // Form1

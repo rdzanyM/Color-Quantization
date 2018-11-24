@@ -60,6 +60,9 @@ namespace Color_Quantization
                 case 1:
                     AverageDithering(direct);
                     break;
+                case 2:
+                    RandomDithering(direct);
+                    break;
             }
             pictureBox.Image = direct.Bitmap;
             pictureBox.Refresh();
@@ -93,7 +96,7 @@ namespace Color_Quantization
                 list.Sort();
                 for (int i = 1; i < levels[c]; i++)
                 {
-                    threshholds.Add(list[(int)(((double)i / levels[c]) * list.Count)]);
+                    threshholds.Add(list[(i * list.Count / levels[c])]);
                 }
                 threshholds.Add(255);
                 d = (levels[c] - 1);
@@ -116,7 +119,45 @@ namespace Color_Quantization
                 direct.SetPixel(i, j, Color.FromArgb(rgb[0, i, j], rgb[1, i, j], rgb[2, i, j]));
         }
 
-        private void TextBox1_TextChanged(object sender, EventArgs e)
+        private void RandomDithering(DirectBitmap direct)
+        {
+            int d, r;
+            byte[,,] rgb = new byte[3, direct.Width, direct.Height];
+            Parallel.For(0, direct.Width, (i) =>
+            {
+                for (int j = 0; j < direct.Height; j++)
+                {
+                    Color color = direct.GetPixel(i, j);
+                    rgb[0, i, j] = color.R;
+                    rgb[1, i, j] = color.G;
+                    rgb[2, i, j] = color.B;
+                }
+            });
+            Random seeder = new Random();
+            for (int c = 0; c < 3; c++)
+            {
+                d = (levels[c] - 1);
+                r = 256 / d;
+                if (256 % d != 0) r++;
+                int[] seeds = new int[direct.Width];
+                for (int i = 0; i < seeds.Length; i++)  seeds[i] = seeder.Next();
+                Parallel.For(0, direct.Width, (i) =>
+                {
+                    Random random = new Random(seeds[i]);   //Can't place random outside the loop as it's not thread safe.
+                                                            //Default seed value is time-based, so I have to seed it manualy.
+                    for (int j = 0; j < direct.Height; j++)
+                    {
+                        int lvl = rgb[c, i, j] / r;
+                        if (rgb[c, i, j] % r > random.Next() % r) lvl++;
+                        rgb[c, i, j] = (byte)(lvl * 255 / d);
+                    }
+                });
+            }
+            for (int i = 0; i < direct.Width; i++) for (int j = 0; j < direct.Height; j++)
+                direct.SetPixel(i, j, Color.FromArgb(rgb[0, i, j], rgb[1, i, j], rgb[2, i, j]));
+        }
+
+            private void TextBox1_TextChanged(object sender, EventArgs e)
         {
             if (Byte.TryParse(textBox1.Text, out byte b) && b >= 2)
             {
