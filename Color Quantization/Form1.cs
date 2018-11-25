@@ -122,6 +122,7 @@ namespace Color_Quantization
         private void RandomDithering(DirectBitmap direct)
         {
             int d, r;
+            double rd;
             byte[,,] rgb = new byte[3, direct.Width, direct.Height];
             Parallel.For(0, direct.Width, (i) =>
             {
@@ -138,6 +139,7 @@ namespace Color_Quantization
             {
                 d = (levels[c] - 1);
                 r = 256 / d;
+                rd = 256.0 / d;
                 if (256 % d != 0) r++;
                 int[] seeds = new int[direct.Width];
                 for (int i = 0; i < seeds.Length; i++)  seeds[i] = seeder.Next();
@@ -147,7 +149,7 @@ namespace Color_Quantization
                                                             //Default seed value is time-based, so I have to seed it manualy.
                     for (int j = 0; j < direct.Height; j++)
                     {
-                        int lvl = rgb[c, i, j] / r;
+                        int lvl = (int)(rgb[c, i, j] / rd);
                         if (rgb[c, i, j] % r > random.Next() % r) lvl++;
                         rgb[c, i, j] = (byte)(lvl * 255 / d);
                     }
