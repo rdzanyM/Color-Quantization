@@ -31,12 +31,8 @@ namespace Color_Quantization
         public DirectBitmap(Bitmap b, int width, int height) : this(width, height)
         {
             for (int i = 0; i < width; i++)
-            {
                 for (int j = 0; j < height; j++)
-                {
                     SetPixel(i, j, b.GetPixel(i, j));
-                }
-            }
         }
 
         public void SetPixel(int x, int y, Color color)

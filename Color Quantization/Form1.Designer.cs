@@ -132,8 +132,9 @@
             this.comboBox.Items.AddRange(new object[] {
             "Original Image",
             "Average Dithering",
-            "Random Dithering"});
-            this.comboBox.Location = new System.Drawing.Point(184, 30);
+            "Random Dithering",
+            "Ordered Dithering"});
+            this.comboBox.Location = new System.Drawing.Point(184, 29);
             this.comboBox.Margin = new System.Windows.Forms.Padding(10);
             this.comboBox.Name = "comboBox";
             this.comboBox.Size = new System.Drawing.Size(200, 27);

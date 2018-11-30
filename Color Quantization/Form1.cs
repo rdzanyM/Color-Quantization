@@ -63,6 +63,9 @@ namespace Color_Quantization
                 case 2:
                     RandomDithering(direct);
                     break;
+                case 3:
+                    OrderedDithering(direct);
+                    break;
             }
             pictureBox.Image = direct.Bitmap;
             pictureBox.Refresh();
@@ -71,8 +74,8 @@ namespace Color_Quantization
         /// <summary>
         /// About equal number of pixels with specific color component value.
         /// It may not be the case if the picture has many pixels with same color component value.
+        /// This method increases the contrast of an image
         /// </summary>
-        /// <param name="direct"></param>
         private void AverageDithering(DirectBitmap direct)
         {
             int d;
@@ -115,14 +118,26 @@ namespace Color_Quantization
                 list.Clear();
                 threshholds.Clear();
             }
-            for (int i = 0; i < direct.Width; i++) for (int j = 0; j < direct.Height; j++)
-                direct.SetPixel(i, j, Color.FromArgb(rgb[0, i, j], rgb[1, i, j], rgb[2, i, j]));
+            for (int i = 0; i < direct.Width; i++)
+                for (int j = 0; j < direct.Height; j++)
+                    direct.SetPixel(i, j, Color.FromArgb(rgb[0, i, j], rgb[1, i, j], rgb[2, i, j]));
         }
 
+        /// <summary>
+        /// <para>
+        /// Each pixel is assigned one of the 2 levels closest to its color.
+        /// The lower the difference between the level and the color, the higher the probability it will be assigned.
+        /// The algorithm is non-deterministic
+        /// </para>
+        /// <example>
+        /// E.g. when converting to 3 colors (0,127,255)
+        /// the color 150 will be converted to 127(82%) or 255(18%).
+        /// </example>
+        /// </summary>
         private void RandomDithering(DirectBitmap direct)
         {
-            int d, r;
-            double rd;
+            int lvlMax;
+            double lvlWidth;
             byte[,,] rgb = new byte[3, direct.Width, direct.Height];
             Parallel.For(0, direct.Width, (i) =>
             {
@@ -137,10 +152,8 @@ namespace Color_Quantization
             Random seeder = new Random();
             for (int c = 0; c < 3; c++)
             {
-                d = (levels[c] - 1);
-                r = 256 / d;
-                rd = 256.0 / d;
-                if (256 % d != 0) r++;
+                lvlMax = (levels[c] - 1);
+                lvlWidth = 255.0 / lvlMax;
                 int[] seeds = new int[direct.Width];
                 for (int i = 0; i < seeds.Length; i++)  seeds[i] = seeder.Next();
                 Parallel.For(0, direct.Width, (i) =>
@@ -149,17 +162,118 @@ namespace Color_Quantization
                                                             //Default seed value is time-based, so I have to seed it manualy.
                     for (int j = 0; j < direct.Height; j++)
                     {
-                        int lvl = (int)(rgb[c, i, j] / rd);
-                        if (rgb[c, i, j] % r > random.Next() % r) lvl++;
-                        rgb[c, i, j] = (byte)(lvl * 255 / d);
+                        double lvlD = rgb[c, i, j] / lvlWidth;
+                        int lvl = (int)lvlD;
+                        if (lvlD - lvl > random.NextDouble()) lvl++;
+                        rgb[c, i, j] = (byte)(lvl * 255 / lvlMax);
                     }
                 });
             }
-            for (int i = 0; i < direct.Width; i++) for (int j = 0; j < direct.Height; j++)
-                direct.SetPixel(i, j, Color.FromArgb(rgb[0, i, j], rgb[1, i, j], rgb[2, i, j]));
+            for (int i = 0; i < direct.Width; i++)
+                for (int j = 0; j < direct.Height; j++)
+                    direct.SetPixel(i, j, Color.FromArgb(rgb[0, i, j], rgb[1, i, j], rgb[2, i, j]));
         }
 
-            private void TextBox1_TextChanged(object sender, EventArgs e)
+        /// <summary>
+        /// <para>
+        /// Each pixel is assigned one of the 2 levels closest to its color.
+        /// The lower the difference between the level and the color, the higher the probability it will be assigned.
+        /// </para>
+        /// <para>
+        /// Unlike <see cref="RandomDithering(DirectBitmap)"/> the algorithm is deterministic.
+        /// The color is determined by pixel position and the order matrix.
+        /// </para>
+        /// <example>
+        /// E.g. when converting to 3 colors (0,127,255)
+        /// the color 150 will be converted to 127(82%) or 255(18%).
+        /// </example>
+        /// </summary>
+        private void OrderedDithering(DirectBitmap direct)
+        {
+            int lvlMax, n2, n;
+            double[,] orderMatrix; // n x n
+            double lvlWidth;
+            byte[,,] rgb = new byte[3, direct.Width, direct.Height];
+            Parallel.For(0, direct.Width, (i) =>
+            {
+                for (int j = 0; j < direct.Height; j++)
+                {
+                    Color color = direct.GetPixel(i, j);
+                    rgb[0, i, j] = color.R;
+                    rgb[1, i, j] = color.G;
+                    rgb[2, i, j] = color.B;
+                }
+            });
+            for (int c = 0; c < 3; c++)
+            {
+                lvlMax = (levels[c] - 1);
+                n2 = 255 / lvlMax;
+                lvlWidth = 255.0 / lvlMax;
+                if (255 % lvlMax > 0) n2++;
+                orderMatrix = Normalize(GetMatrix(n2));
+                n = orderMatrix.GetLength(0);
+                n2 = n * n;
+                Parallel.For(0, direct.Width, (i) =>
+                {
+                    for (int j = 0; j < direct.Height; j++)
+                    {
+                        double lvlD = rgb[c, i, j] / lvlWidth;
+                        int lvl = (int)lvlD;
+                        if ((lvlD - lvl) > orderMatrix[i % n, j % n]) lvl++;
+                        rgb[c, i, j] = (byte)(lvl * 255 / lvlMax);
+                    }
+                });
+            }
+            for (int i = 0; i < direct.Width; i++)
+                for (int j = 0; j < direct.Height; j++)
+                    direct.SetPixel(i, j, Color.FromArgb(rgb[0, i, j], rgb[1, i, j], rgb[2, i, j]));
+
+            int[,] GetMatrix(int el)    //gets order matrix with at least 'el' elements
+            {
+                if (el == 1)
+                    return new int[1, 1] { { 0 } };
+                if (4 < el && el < 10)
+                    return new int[3, 3] { { 6, 8, 4 }, { 1, 0, 3 }, { 5, 2, 7 } };
+                el += 3;
+                el /= 4;
+                return Expand(GetMatrix(el));
+
+                int[,] Expand(int[,] m) //expands order matrix m so that it has 4 times more elements
+                {
+                    int k = m.GetLength(0);
+                    int[,] e = new int[2 * k, 2 * k];
+                    for(int i = 0; i < 2 * k; i++)
+                    {
+                        for (int j = 0; j < 2 * k; j++)
+                        {
+                            e[i, j] = m[i % k, j % k] * 4;
+                            if (i >= k)
+                            {
+                                if(j < k)
+                                    e[i, j] += 2;
+                                else
+                                    e[i, j]++;
+                            }
+                            else if (j >= k)
+                                e[i, j] += 3;
+                        }
+                    }
+                    return e;
+                }
+            }
+            double[,] Normalize(int[,] m) //divides all elements of matrix m(n x n) by n^2
+            {
+                int l = m.GetLength(0);
+                double ll = l * l;
+                double[,] normal = new double[l,l];
+                for(int i = 0; i < l; i++)
+                    for (int j = 0; j < l; j++)
+                        normal[i, j] = m[i, j] / ll; 
+                return normal;
+            }
+        }
+
+        private void TextBox1_TextChanged(object sender, EventArgs e)
         {
             if (Byte.TryParse(textBox1.Text, out byte b) && b >= 2)
             {
