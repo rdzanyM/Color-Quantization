@@ -13,7 +13,10 @@ namespace Color_Quantization
     public partial class Form1 : Form
     {
         Image original = null;
-        byte[] levels = { 2, 2, 2 };
+        /// <summary>
+        /// Number of colors per channel(R,G,B)
+        /// </summary>
+        int[] levels = { 2, 2, 2 };
         public Form1()
         {
             InitializeComponent();
@@ -118,9 +121,11 @@ namespace Color_Quantization
                 list.Clear();
                 threshholds.Clear();
             }
-            for (int i = 0; i < direct.Width; i++)
+            Parallel.For(0, direct.Width, (i) =>
+            {
                 for (int j = 0; j < direct.Height; j++)
                     direct.SetPixel(i, j, Color.FromArgb(rgb[0, i, j], rgb[1, i, j], rgb[2, i, j]));
+            });
         }
 
         /// <summary>
@@ -169,9 +174,11 @@ namespace Color_Quantization
                     }
                 });
             }
-            for (int i = 0; i < direct.Width; i++)
+            Parallel.For(0, direct.Width, (i) =>
+            {
                 for (int j = 0; j < direct.Height; j++)
                     direct.SetPixel(i, j, Color.FromArgb(rgb[0, i, j], rgb[1, i, j], rgb[2, i, j]));
+            });
         }
 
         /// <summary>
@@ -224,9 +231,11 @@ namespace Color_Quantization
                     }
                 });
             }
-            for (int i = 0; i < direct.Width; i++)
+            Parallel.For(0, direct.Width, (i) =>
+            {
                 for (int j = 0; j < direct.Height; j++)
                     direct.SetPixel(i, j, Color.FromArgb(rgb[0, i, j], rgb[1, i, j], rgb[2, i, j]));
+            });
 
             int[,] GetMatrix(int el)    //gets order matrix with at least 'el' elements
             {
@@ -242,14 +251,14 @@ namespace Color_Quantization
                 {
                     int k = m.GetLength(0);
                     int[,] e = new int[2 * k, 2 * k];
-                    for(int i = 0; i < 2 * k; i++)
+                    Parallel.For(0, 2 * k, (i) =>
                     {
                         for (int j = 0; j < 2 * k; j++)
                         {
                             e[i, j] = m[i % k, j % k] * 4;
                             if (i >= k)
                             {
-                                if(j < k)
+                                if (j < k)
                                     e[i, j] += 2;
                                 else
                                     e[i, j]++;
@@ -257,7 +266,7 @@ namespace Color_Quantization
                             else if (j >= k)
                                 e[i, j] += 3;
                         }
-                    }
+                    });
                     return e;
                 }
             }
@@ -266,55 +275,57 @@ namespace Color_Quantization
                 int l = m.GetLength(0);
                 double ll = l * l;
                 double[,] normal = new double[l,l];
-                for(int i = 0; i < l; i++)
+                Parallel.For(0, l, (i) =>
+                {
                     for (int j = 0; j < l; j++)
-                        normal[i, j] = m[i, j] / ll; 
+                        normal[i, j] = m[i, j] / ll;
+                });
                 return normal;
             }
         }
 
         private void TextBox1_TextChanged(object sender, EventArgs e)
         {
-            if (Byte.TryParse(textBox1.Text, out byte b) && b >= 2)
+            if (Int32.TryParse(textBox1.Text, out int i) && 1 < i && i < 257)
             {
-                levels[0] = b;
+                levels[0] = i;
                 Redraw();
             }
         }
 
         private void TextBox2_TextChanged(object sender, EventArgs e)
         {
-            if (Byte.TryParse(textBox2.Text, out byte b) && b >= 2)
+            if (Int32.TryParse(textBox2.Text, out int i) && 1 < i && i < 257)
             {
-                levels[1] = b;
+                levels[1] = i;
                 Redraw();
             }
         }
 
         private void TextBox3_TextChanged(object sender, EventArgs e)
         {
-            if (Byte.TryParse(textBox3.Text, out byte b) && b >= 2)
+            if (Int32.TryParse(textBox3.Text, out int i) && 1 < i && i < 257)
             {
-                levels[2] = b;
+                levels[2] = i;
                 Redraw();
             }
         }
 
         private void TextBox1_Leave(object sender, EventArgs e)
         {
-            if (!Byte.TryParse(textBox1.Text, out byte b) || b < 2)
+            if (!Int32.TryParse(textBox1.Text, out int i) || i < 2 || 256 < i)
                 textBox1.Text = levels[0].ToString();
         }
 
         private void TextBox2_Leave(object sender, EventArgs e)
         {
-            if (!Byte.TryParse(textBox2.Text, out byte b) || b < 2)
+            if (!Int32.TryParse(textBox2.Text, out int i) || i < 2 || 256 < i)
                 textBox2.Text = levels[1].ToString();
         }
 
         private void TextBox3_Leave(object sender, EventArgs e)
         {
-            if (!Byte.TryParse(textBox3.Text, out byte b) || b < 2)
+            if (!Int32.TryParse(textBox3.Text, out int i) || i < 2 || 256 < i)
                 textBox3.Text = levels[2].ToString();
         }
 
