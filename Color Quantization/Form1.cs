@@ -69,6 +69,9 @@ namespace Color_Quantization
                 case 3:
                     OrderedDithering(direct);
                     break;
+                case 4:
+                    ErrorPropagation(direct, Filters.FloydAndSteinberg_Filter);
+                    break;
             }
             pictureBox.Image = direct.Bitmap;
             pictureBox.Refresh();
@@ -284,6 +287,61 @@ namespace Color_Quantization
             }
         }
 
+        private void ErrorPropagation(DirectBitmap direct, double[,] filter)
+        {
+            double[,,] rgb = new double[3, direct.Width, direct.Height];
+            byte[,,] result = new byte [3, direct.Width, direct.Height];
+            int X = (filter.GetLength(0) - 1) / 2;
+            int Y = (filter.GetLength(1) - 1) / 2;
+            Parallel.For(0, direct.Width, (i) =>
+            {
+                for (int j = 0; j < direct.Height; j++)
+                {
+                    Color color = direct.GetPixel(i, j);
+                    rgb[0, i, j] = color.R;
+                    rgb[1, i, j] = color.G;
+                    rgb[2, i, j] = color.B;
+                }
+            });
+
+            //Parallel.For(0, 3, (c) =>   //only 3 threads, the order of pixel processing is important.
+            for (int c = 0; c < 3; c++)
+            {
+                double d = 255.0 / (levels[c] - 1);
+                for (int j = 0; j < direct.Height; j++)
+                {
+                    for (int i = 0; i < direct.Width; i++)
+                    {
+                        result[c, i, j] = (byte)((byte)Math.Round(rgb[c, i, j] / d) * d);
+                        double error = rgb[c, i, j] - result[c, i, j];
+                        for(int x = 0; x <= X; x++) //upper half of filter array is filled with 0.
+                        {
+                            for(int y = -Y; y <= Y; y++)
+                            {
+                                int a = i + y;
+                                int b = j + x;
+                                if (a >= direct.Width)
+                                    a = direct.Width - 1;
+                                else if (a < 0)
+                                    a = 0;
+                                if (b >= direct.Height)
+                                    b = direct.Height - 1;
+                                rgb[c, a, b] += error * filter[X + x, Y + y];
+                            }
+                        }
+                    }
+                }
+            }
+            //);
+            ;
+            Parallel.For(0, direct.Width, (i) =>
+            {
+                for (int j = 0; j < direct.Height; j++)
+                    direct.SetPixel(i, j, Color.FromArgb(result[0, i, j], result[1, i, j], result[2, i, j]));
+            });
+            return;
+        }
+
         private void TextBox1_TextChanged(object sender, EventArgs e)
         {
             if (Int32.TryParse(textBox1.Text, out int i) && 1 < i && i < 257)
@@ -332,6 +390,27 @@ namespace Color_Quantization
         private void FlowersToolStripMenuItem_Click(object sender, EventArgs e)
         {
             original = Properties.Resources.Flowers;
+            comboBox.SelectedIndex = 0;
+            ComboBox_SelectedIndexChanged(null, null);
+        }
+
+        private void ParrotsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            original = Properties.Resources.Parrots;
+            comboBox.SelectedIndex = 0;
+            ComboBox_SelectedIndexChanged(null, null);
+        }
+
+        private void IceCreamToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            original = Properties.Resources.IceCream;
+            comboBox.SelectedIndex = 0;
+            ComboBox_SelectedIndexChanged(null, null);
+        }
+
+        private void JellyBeansToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            original = Properties.Resources.JellyBeans;
             comboBox.SelectedIndex = 0;
             ComboBox_SelectedIndexChanged(null, null);
         }

@@ -48,6 +48,7 @@
             this.loadImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.examplesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.flowersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.parrotsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.iceCreamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.jellyBeansToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
@@ -133,7 +134,8 @@
             "Original Image",
             "Average Dithering",
             "Random Dithering",
-            "Ordered Dithering"});
+            "Ordered Dithering",
+            "Error Propagation"});
             this.comboBox.Location = new System.Drawing.Point(184, 29);
             this.comboBox.Margin = new System.Windows.Forms.Padding(10);
             this.comboBox.Name = "comboBox";
@@ -302,6 +304,7 @@
             // 
             this.examplesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.flowersToolStripMenuItem,
+            this.parrotsToolStripMenuItem,
             this.iceCreamToolStripMenuItem,
             this.jellyBeansToolStripMenuItem});
             this.examplesToolStripMenuItem.Name = "examplesToolStripMenuItem";
@@ -311,21 +314,30 @@
             // flowersToolStripMenuItem
             // 
             this.flowersToolStripMenuItem.Name = "flowersToolStripMenuItem";
-            this.flowersToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.flowersToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.flowersToolStripMenuItem.Text = "Flowers";
             this.flowersToolStripMenuItem.Click += new System.EventHandler(this.FlowersToolStripMenuItem_Click);
+            // 
+            // parrotsToolStripMenuItem
+            // 
+            this.parrotsToolStripMenuItem.Name = "parrotsToolStripMenuItem";
+            this.parrotsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.parrotsToolStripMenuItem.Text = "Parrots";
+            this.parrotsToolStripMenuItem.Click += new System.EventHandler(this.ParrotsToolStripMenuItem_Click);
             // 
             // iceCreamToolStripMenuItem
             // 
             this.iceCreamToolStripMenuItem.Name = "iceCreamToolStripMenuItem";
-            this.iceCreamToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.iceCreamToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.iceCreamToolStripMenuItem.Text = "Ice Cream";
+            this.iceCreamToolStripMenuItem.Click += new System.EventHandler(this.IceCreamToolStripMenuItem_Click);
             // 
             // jellyBeansToolStripMenuItem
             // 
             this.jellyBeansToolStripMenuItem.Name = "jellyBeansToolStripMenuItem";
-            this.jellyBeansToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.jellyBeansToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.jellyBeansToolStripMenuItem.Text = "Jelly Beans";
+            this.jellyBeansToolStripMenuItem.Click += new System.EventHandler(this.JellyBeansToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -382,6 +394,7 @@
         private System.Windows.Forms.ToolStripMenuItem flowersToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem iceCreamToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem jellyBeansToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem parrotsToolStripMenuItem;
     }
 }
 
