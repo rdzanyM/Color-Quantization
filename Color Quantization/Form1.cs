@@ -304,8 +304,7 @@ namespace Color_Quantization
                 }
             });
 
-            //Parallel.For(0, 3, (c) =>   //only 3 threads, the order of pixel processing is important.
-            for (int c = 0; c < 3; c++)
+            Parallel.For(0, 3, (c) =>   //only 3 threads, the order of pixel processing is important.
             {
                 double d = 255.0 / (levels[c] - 1);
                 for (int j = 0; j < direct.Height; j++)
@@ -331,9 +330,8 @@ namespace Color_Quantization
                         }
                     }
                 }
-            }
-            //);
-            ;
+            });
+
             Parallel.For(0, direct.Width, (i) =>
             {
                 for (int j = 0; j < direct.Height; j++)
