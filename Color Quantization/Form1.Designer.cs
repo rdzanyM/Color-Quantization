@@ -36,13 +36,13 @@
             this.label2 = new System.Windows.Forms.Label();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
-            this.label4 = new System.Windows.Forms.Label();
+            this.labelB = new System.Windows.Forms.Label();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
-            this.label3 = new System.Windows.Forms.Label();
+            this.labelG = new System.Windows.Forms.Label();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
-            this.label1 = new System.Windows.Forms.Label();
+            this.labelR = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.loadImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -137,7 +137,8 @@
             "Average Dithering",
             "Random Dithering",
             "Ordered Dithering",
-            "Error Propagation"});
+            "Error Propagation",
+            "Popularity"});
             this.comboBox.Location = new System.Drawing.Point(110, 16);
             this.comboBox.Margin = new System.Windows.Forms.Padding(10);
             this.comboBox.Name = "comboBox";
@@ -180,7 +181,7 @@
             this.tableLayoutPanel7.ColumnCount = 2;
             this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel7.Controls.Add(this.label4, 0, 0);
+            this.tableLayoutPanel7.Controls.Add(this.labelB, 0, 0);
             this.tableLayoutPanel7.Controls.Add(this.textBox3, 1, 0);
             this.tableLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel7.Location = new System.Drawing.Point(432, 0);
@@ -191,16 +192,16 @@
             this.tableLayoutPanel7.Size = new System.Drawing.Size(218, 60);
             this.tableLayoutPanel7.TabIndex = 2;
             // 
-            // label4
+            // labelB
             // 
-            this.label4.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Garamond", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label4.Location = new System.Drawing.Point(46, 22);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(60, 16);
-            this.label4.TabIndex = 2;
-            this.label4.Text = "B levels:";
+            this.labelB.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.labelB.AutoSize = true;
+            this.labelB.Font = new System.Drawing.Font("Garamond", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.labelB.Location = new System.Drawing.Point(46, 22);
+            this.labelB.Name = "labelB";
+            this.labelB.Size = new System.Drawing.Size(60, 16);
+            this.labelB.TabIndex = 2;
+            this.labelB.Text = "B levels:";
             // 
             // textBox3
             // 
@@ -218,7 +219,7 @@
             this.tableLayoutPanel6.ColumnCount = 2;
             this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel6.Controls.Add(this.label3, 0, 0);
+            this.tableLayoutPanel6.Controls.Add(this.labelG, 0, 0);
             this.tableLayoutPanel6.Controls.Add(this.textBox2, 1, 0);
             this.tableLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel6.Location = new System.Drawing.Point(216, 0);
@@ -229,16 +230,17 @@
             this.tableLayoutPanel6.Size = new System.Drawing.Size(216, 60);
             this.tableLayoutPanel6.TabIndex = 1;
             // 
-            // label3
+            // labelG
             // 
-            this.label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Garamond", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label3.Location = new System.Drawing.Point(44, 22);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(61, 16);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "G levels:";
+            this.labelG.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.labelG.AutoSize = true;
+            this.labelG.Font = new System.Drawing.Font("Garamond", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.labelG.Location = new System.Drawing.Point(44, 22);
+            this.labelG.Name = "labelG";
+            this.labelG.Size = new System.Drawing.Size(61, 16);
+            this.labelG.TabIndex = 2;
+            this.labelG.Text = "G levels:";
+            this.labelG.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // textBox2
             // 
@@ -256,7 +258,7 @@
             this.tableLayoutPanel4.ColumnCount = 2;
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel4.Controls.Add(this.label1, 0, 0);
+            this.tableLayoutPanel4.Controls.Add(this.labelR, 0, 0);
             this.tableLayoutPanel4.Controls.Add(this.textBox1, 1, 0);
             this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 0);
@@ -267,16 +269,16 @@
             this.tableLayoutPanel4.Size = new System.Drawing.Size(216, 60);
             this.tableLayoutPanel4.TabIndex = 0;
             // 
-            // label1
+            // labelR
             // 
-            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Garamond", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label1.Location = new System.Drawing.Point(44, 22);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(61, 16);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "R levels:";
+            this.labelR.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.labelR.AutoSize = true;
+            this.labelR.Font = new System.Drawing.Font("Garamond", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.labelR.Location = new System.Drawing.Point(44, 22);
+            this.labelR.Name = "labelR";
+            this.labelR.Size = new System.Drawing.Size(61, 16);
+            this.labelR.TabIndex = 0;
+            this.labelR.Text = "R levels:";
             // 
             // textBox1
             // 
@@ -388,7 +390,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label labelR;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
         private System.Windows.Forms.ComboBox comboBox;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
@@ -396,8 +398,8 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel7;
         private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label labelB;
+        private System.Windows.Forms.Label labelG;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ToolStripMenuItem flowersToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem iceCreamToolStripMenuItem;

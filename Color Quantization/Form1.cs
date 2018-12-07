@@ -17,6 +17,7 @@ namespace Color_Quantization
         /// Number of colors per channel(R,G,B)
         /// </summary>
         int[] levels = { 2, 2, 2 };
+        bool noRefresh = false;
         public Form1()
         {
             InitializeComponent();
@@ -51,6 +52,30 @@ namespace Color_Quantization
 
         private void ComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (comboBox.SelectedIndex == 5 && labelR.Visible)
+            {
+                labelR.Visible = false;
+                labelB.Visible = false;
+                labelG.Text = "Number of colors (2-999)";
+                textBox1.Visible = false;
+                textBox3.Visible = false;
+                noRefresh = true;
+                textBox2.Text = "8";
+                noRefresh = false;
+            }
+            else if (comboBox.SelectedIndex < 5 && !labelR.Visible)
+            {
+                labelR.Visible = true;
+                labelB.Visible = true;
+                labelG.Text = "G levels";
+                textBox1.Visible = true;
+                textBox3.Visible = true;
+                noRefresh = true;
+                textBox1.Text = "2";
+                textBox2.Text = "2";
+                textBox3.Text = "2";
+                noRefresh = false;
+            }
             Redraw();
         }
 
@@ -72,10 +97,14 @@ namespace Color_Quantization
                 case 4:
                     ErrorPropagation(direct, Filters.FloydAndSteinberg_Filter);
                     break;
+                case 5:
+                    Popularity(direct);
+                    break;
             }
             pictureBox.Image = direct.Bitmap;
             pictureBox.Refresh();
         }
+
 
         /// <summary>
         /// About equal number of pixels with specific color component value.
@@ -337,24 +366,147 @@ namespace Color_Quantization
                 for (int j = 0; j < direct.Height; j++)
                     direct.SetPixel(i, j, Color.FromArgb(result[0, i, j], result[1, i, j], result[2, i, j]));
             });
-            return;
         }
+
+        private void Popularity(DirectBitmap direct)
+        {
+            List<Color> chosenColors = new List<Color>();
+            Dictionary<Color, int> colorCount = new Dictionary<Color, int>();
+            int[,,] rgb = new int[3, direct.Width, direct.Height];
+            Parallel.For(0, direct.Width, (i) =>
+            {
+                for (int j = 0; j < direct.Height; j++)
+                {
+                    Color color = direct.GetPixel(i, j);
+                    rgb[0, i, j] = color.R;
+                    rgb[1, i, j] = color.G;
+                    rgb[2, i, j] = color.B;
+                    //initial color reduction to 52 per channel so that chosen colors are less similar
+                    if (rgb[0, i, j] % 5 > 2)
+                        rgb[0, i, j] += 2;
+                    if (rgb[1, i, j] % 5 > 2)
+                        rgb[1, i, j] += 2;
+                    if (rgb[2, i, j] % 5 > 2)
+                        rgb[2, i, j] += 2;
+                    rgb[0, i, j] = rgb[0, i, j] / 5 * 5;
+                    rgb[1, i, j] = rgb[1, i, j] / 5 * 5;
+                    rgb[2, i, j] = rgb[2, i, j] / 5 * 5;
+                }
+            });
+            for (int i = 0; i < direct.Width; i++)
+            {
+                for (int j = 0; j < direct.Height; j++)
+                {
+                    Color color = Color.FromArgb(rgb[0, i, j], rgb[1, i, j], rgb[2, i, j]);
+                    if (colorCount.ContainsKey(color))
+                        colorCount[color]++;
+                    else
+                        colorCount.Add(color, 1);
+                }
+            }
+            List<Color> ordered = colorCount.OrderByDescending(pair => pair.Value).Select(pair => pair.Key).ToList();
+            Dictionary<Color, Color> approximate = new Dictionary<Color, Color>();
+            List<Color> reserve = new List<Color>();
+            foreach (Color c in ordered)
+            {
+                if (IsLocalMaximum30(c)) //when choosing colors we try to chose only ones that are most common in a 30x30x30 cube around them.
+                    chosenColors.Add(c);
+                else
+                    reserve.Add(c);
+                if (chosenColors.Count == levels[1]) break;
+            }
+            if(chosenColors.Count < levels[1])
+            {
+                List<Color> reserve2 = new List<Color>();
+                foreach (Color c in reserve)
+                {
+                    if (IsLocalMaximum10(c))
+                        chosenColors.Add(c);
+                    else
+                        reserve2.Add(c);
+                    if (chosenColors.Count == levels[1]) break;
+                }
+                foreach (Color c in reserve2)
+                {
+                    if (chosenColors.Count == levels[1]) break;
+                    chosenColors.Add(c);
+                }
+            }
+            foreach(Color c in ordered)
+            {
+                int min = Difference(c, chosenColors[0]);
+                int i = 0;
+                int dif;
+                for(int j = 1; j < chosenColors.Count; j++)
+                {
+                    dif = Difference(c, chosenColors[j]);
+                    if (dif < min)
+                    {
+                        min = dif;
+                        i = j;
+                    }
+                }
+                approximate.Add(c, chosenColors[i]);
+            }
+            ;
+            Parallel.For(0, direct.Width, (i) =>
+            {
+                for (int j = 0; j < direct.Height; j++)
+                {
+                    direct.SetPixel(i, j, approximate[Color.FromArgb(rgb[0, i, j], rgb[1, i, j], rgb[2, i, j])]);
+                }
+            });
+
+            int Difference(Color c1, Color c2)
+            {
+                int dR = c1.R - c2.R;
+                int dG = c1.G - c2.G;
+                int dB = c1.B - c2.B;
+                return dR * dR + dG * dG + dB * dB;
+            }
+
+            bool IsLocalMaximum30(Color color) //max in a cube with side 30
+            {
+                Color c;
+                int count = colorCount[color];
+                for (int r = Math.Max(color.R - 15, 0); r <= Math.Min(color.R + 15, 255); r+=5)
+                    for (int g = Math.Max(color.G - 15, 0); g <= Math.Min(color.G + 15, 255); g+=5)
+                        for (int b = Math.Max(color.B - 15, 0); b <= Math.Min(color.B + 15, 255); b+=5)
+                            if (colorCount.ContainsKey(c = Color.FromArgb(r, g, b)) && colorCount[c] > count)
+                                return false;
+                return true;
+            }
+
+            bool IsLocalMaximum10(Color color) //max in a cube with side 10
+            {
+                Color c;
+                int count = colorCount[color];
+                for (int r = Math.Max(color.R - 5, 0); r <= Math.Min(color.R + 5, 255); r += 5)
+                    for (int g = Math.Max(color.G - 5, 0); g <= Math.Min(color.G + 5, 255); g += 5)
+                        for (int b = Math.Max(color.B - 5, 0); b <= Math.Min(color.B + 5, 255); b += 5)
+                            if (colorCount.ContainsKey(c = Color.FromArgb(r, g, b)) && colorCount[c] > count)
+                                return false;
+                return true;
+            }
+        }
+
+
 
         private void TextBox1_TextChanged(object sender, EventArgs e)
         {
             if (Int32.TryParse(textBox1.Text, out int i) && 1 < i && i < 257)
             {
                 levels[0] = i;
-                Redraw();
+                if(!noRefresh) Redraw();
             }
         }
 
         private void TextBox2_TextChanged(object sender, EventArgs e)
         {
-            if (Int32.TryParse(textBox2.Text, out int i) && 1 < i && i < 257)
+            if (Int32.TryParse(textBox2.Text, out int i) && 1 < i && (i < 257 || (!labelR.Visible && i < 1e4)))
             {
                 levels[1] = i;
-                Redraw();
+                if (!noRefresh) Redraw();
             }
         }
 
@@ -363,7 +515,7 @@ namespace Color_Quantization
             if (Int32.TryParse(textBox3.Text, out int i) && 1 < i && i < 257)
             {
                 levels[2] = i;
-                Redraw();
+                if (!noRefresh) Redraw();
             }
         }
 
@@ -375,7 +527,7 @@ namespace Color_Quantization
 
         private void TextBox2_Leave(object sender, EventArgs e)
         {
-            if (!Int32.TryParse(textBox2.Text, out int i) || i < 2 || 256 < i)
+            if (!Int32.TryParse(textBox2.Text, out int i) || i < 2 || (256 < i && labelR.Visible) || 9999 < i)
                 textBox2.Text = levels[1].ToString();
         }
 
