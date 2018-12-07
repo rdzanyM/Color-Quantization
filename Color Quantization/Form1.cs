@@ -407,10 +407,14 @@ namespace Color_Quantization
             List<Color> ordered = colorCount.OrderByDescending(pair => pair.Value).Select(pair => pair.Key).ToList();
             Dictionary<Color, Color> approximate = new Dictionary<Color, Color>();
             List<Color> reserve = new List<Color>();
+            HashSet<Color> taken = new HashSet<Color>();
             foreach (Color c in ordered)
             {
                 if (IsLocalMaximum30(c)) //when choosing colors we try to chose only ones that are most common in a 30x30x30 cube around them.
+                {
                     chosenColors.Add(c);
+                    taken.Add(c);
+                }
                 else
                     reserve.Add(c);
                 if (chosenColors.Count == levels[1]) break;
@@ -421,7 +425,10 @@ namespace Color_Quantization
                 foreach (Color c in reserve)
                 {
                     if (IsLocalMaximum10(c))
+                    {
                         chosenColors.Add(c);
+                        taken.Add(c);
+                    }
                     else
                         reserve2.Add(c);
                     if (chosenColors.Count == levels[1]) break;
@@ -467,24 +474,20 @@ namespace Color_Quantization
 
             bool IsLocalMaximum30(Color color) //max in a cube with side 30
             {
-                Color c;
-                int count = colorCount[color];
                 for (int r = Math.Max(color.R - 15, 0); r <= Math.Min(color.R + 15, 255); r+=5)
                     for (int g = Math.Max(color.G - 15, 0); g <= Math.Min(color.G + 15, 255); g+=5)
                         for (int b = Math.Max(color.B - 15, 0); b <= Math.Min(color.B + 15, 255); b+=5)
-                            if (colorCount.ContainsKey(c = Color.FromArgb(r, g, b)) && colorCount[c] > count)
+                            if (taken.Contains(Color.FromArgb(r, g, b)))
                                 return false;
                 return true;
             }
 
             bool IsLocalMaximum10(Color color) //max in a cube with side 10
             {
-                Color c;
-                int count = colorCount[color];
                 for (int r = Math.Max(color.R - 5, 0); r <= Math.Min(color.R + 5, 255); r += 5)
                     for (int g = Math.Max(color.G - 5, 0); g <= Math.Min(color.G + 5, 255); g += 5)
                         for (int b = Math.Max(color.B - 5, 0); b <= Math.Min(color.B + 5, 255); b += 5)
-                            if (colorCount.ContainsKey(c = Color.FromArgb(r, g, b)) && colorCount[c] > count)
+                            if (taken.Contains(Color.FromArgb(r, g, b)))
                                 return false;
                 return true;
             }
