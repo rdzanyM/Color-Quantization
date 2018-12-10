@@ -414,6 +414,7 @@ namespace Color_Quantization
             Dictionary<Color, Color> approximate = new Dictionary<Color, Color>();
             List<Color> reserve = new List<Color>();
             HashSet<Color> taken = new HashSet<Color>();
+            HashSet<Color> discarded = new HashSet<Color>();
             foreach (Color c in ordered)
             {
                 if (IsLocalMaximum40(c)) //when choosing colors we try to chose only ones that are most common in a 40x40x40 cube around them.
@@ -422,11 +423,15 @@ namespace Color_Quantization
                     taken.Add(c);
                 }
                 else
+                {
                     reserve.Add(c);
+                    discarded.Add(c);
+                }
                 if (chosenColors.Count == levels[1]) break;
             }
             if(chosenColors.Count < levels[1])
             {
+                discarded.Clear();
                 List<Color> reserve2 = new List<Color>();
                 foreach (Color c in reserve)
                 {
@@ -436,7 +441,10 @@ namespace Color_Quantization
                         taken.Add(c);
                     }
                     else
+                    {
                         reserve2.Add(c);
+                        discarded.Add(c);
+                    }
                     if (chosenColors.Count == levels[1]) break;
                 }
                 foreach (Color c in reserve2)
@@ -483,8 +491,11 @@ namespace Color_Quantization
                 for (int r = Math.Max(color.R - 20, 0); r <= Math.Min(color.R + 20, 255); r+=5)
                     for (int g = Math.Max(color.G - 20, 0); g <= Math.Min(color.G + 20, 255); g+=5)
                         for (int b = Math.Max(color.B - 20, 0); b <= Math.Min(color.B + 20, 255); b+=5)
-                            if (taken.Contains(Color.FromArgb(r, g, b)))
+                        {
+                            Color c = Color.FromArgb(r, g, b);
+                            if (taken.Contains(c) || discarded.Contains(c))
                                 return false;
+                        }
                 return true;
             }
 
@@ -493,8 +504,11 @@ namespace Color_Quantization
                 for (int r = Math.Max(color.R - 5, 0); r <= Math.Min(color.R + 5, 255); r += 5)
                     for (int g = Math.Max(color.G - 5, 0); g <= Math.Min(color.G + 5, 255); g += 5)
                         for (int b = Math.Max(color.B - 5, 0); b <= Math.Min(color.B + 5, 255); b += 5)
-                            if (taken.Contains(Color.FromArgb(r, g, b)))
+                        {
+                            Color c = Color.FromArgb(r, g, b);
+                            if (taken.Contains(c) || discarded.Contains(c))
                                 return false;
+                        }
                 return true;
             }
         }
