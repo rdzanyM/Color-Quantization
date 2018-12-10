@@ -109,7 +109,7 @@ namespace Color_Quantization
         /// <summary>
         /// About equal number of pixels with specific color component value.
         /// It may not be the case if the picture has many pixels with same color component value.
-        /// This method increases the contrast of an image
+        /// This method equalizes the histogram.
         /// </summary>
         private void AverageDithering(DirectBitmap direct)
         {
@@ -316,6 +316,10 @@ namespace Color_Quantization
             }
         }
 
+        /// <summary>
+        /// The difference between the actual color and the chosen one is propagated on the nearby pixels.
+        /// </summary>
+        /// <param name="filter">Determines the diretion and strength of the error propagation</param>
         private void ErrorPropagation(DirectBitmap direct, double[,] filter)
         {
             double[,,] rgb = new double[3, direct.Width, direct.Height];
@@ -368,6 +372,11 @@ namespace Color_Quantization
             });
         }
 
+        /// <summary>
+        /// Choses k most popular colors in the image.
+        /// Assignes one of the chosen colors to each pixel based on euclidian distance in rgb.
+        /// Tries to chose colors then are not very near to each other.
+        /// </summary>
         private void Popularity(DirectBitmap direct)
         {
             List<Color> chosenColors = new List<Color>();
@@ -382,15 +391,12 @@ namespace Color_Quantization
                     rgb[1, i, j] = color.G;
                     rgb[2, i, j] = color.B;
                     //initial color reduction to 52 per channel so that chosen colors are less similar
-                    if (rgb[0, i, j] % 5 > 2)
-                        rgb[0, i, j] += 2;
-                    if (rgb[1, i, j] % 5 > 2)
-                        rgb[1, i, j] += 2;
-                    if (rgb[2, i, j] % 5 > 2)
-                        rgb[2, i, j] += 2;
-                    rgb[0, i, j] = rgb[0, i, j] / 5 * 5;
-                    rgb[1, i, j] = rgb[1, i, j] / 5 * 5;
-                    rgb[2, i, j] = rgb[2, i, j] / 5 * 5;
+                    for(int k = 0; k < 3; k++)
+                    {
+                        if (rgb[k, i, j] % 5 > 2)
+                            rgb[k, i, j] += 2;
+                        rgb[k, i, j] = rgb[k, i, j] / 5 * 5;
+                    }
                 }
             });
             for (int i = 0; i < direct.Width; i++)
@@ -410,7 +416,7 @@ namespace Color_Quantization
             HashSet<Color> taken = new HashSet<Color>();
             foreach (Color c in ordered)
             {
-                if (IsLocalMaximum30(c)) //when choosing colors we try to chose only ones that are most common in a 30x30x30 cube around them.
+                if (IsLocalMaximum40(c)) //when choosing colors we try to chose only ones that are most common in a 40x40x40 cube around them.
                 {
                     chosenColors.Add(c);
                     taken.Add(c);
@@ -472,11 +478,11 @@ namespace Color_Quantization
                 return dR * dR + dG * dG + dB * dB;
             }
 
-            bool IsLocalMaximum30(Color color) //max in a cube with side 30
+            bool IsLocalMaximum40(Color color) //max in a cube with side 40
             {
-                for (int r = Math.Max(color.R - 15, 0); r <= Math.Min(color.R + 15, 255); r+=5)
-                    for (int g = Math.Max(color.G - 15, 0); g <= Math.Min(color.G + 15, 255); g+=5)
-                        for (int b = Math.Max(color.B - 15, 0); b <= Math.Min(color.B + 15, 255); b+=5)
+                for (int r = Math.Max(color.R - 20, 0); r <= Math.Min(color.R + 20, 255); r+=5)
+                    for (int g = Math.Max(color.G - 20, 0); g <= Math.Min(color.G + 20, 255); g+=5)
+                        for (int b = Math.Max(color.B - 20, 0); b <= Math.Min(color.B + 20, 255); b+=5)
                             if (taken.Contains(Color.FromArgb(r, g, b)))
                                 return false;
                 return true;

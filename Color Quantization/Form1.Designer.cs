@@ -139,7 +139,7 @@
             "Ordered Dithering",
             "Error Propagation",
             "Popularity"});
-            this.comboBox.Location = new System.Drawing.Point(110, 16);
+            this.comboBox.Location = new System.Drawing.Point(110, 15);
             this.comboBox.Margin = new System.Windows.Forms.Padding(10);
             this.comboBox.Name = "comboBox";
             this.comboBox.Size = new System.Drawing.Size(180, 27);
